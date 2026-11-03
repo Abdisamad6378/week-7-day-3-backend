@@ -1,0 +1,137 @@
+Add to .env:
+
+bash
+Copy
+
+JWT_SECRET=your-super-secret-key-at-least-32-characters-long
+PORT=4000
+
+Frontend:
+
+bash
+Copy
+
+npm create vite@latest week-7-day-3-frontend -- --template react
+cd week-7-day-3-frontend
+npm install
+npm install axios
+npm run dev  # runs on port 5173
+
+Make sure your backend has CORS configured: app.use(cors({ origin: 'http://localhost:5173' })).
+Tasks
+Task 1: React Registration Form (25 points)
+
+Build a RegisterForm component with client-side validation and API integration:
+
+    Fields: Full Name, Email, Password, Confirm Password
+    Client-side validation before submitting:
+        Name is required and at least 2 characters
+        Email is required and has a valid format
+        Password is at least 8 characters, contains one uppercase letter and one number
+        Confirm Password matches Password
+    Display validation errors below the relevant field in red
+    On submit, POST to http://localhost:4000/api/auth/register with { email, password, name }
+    Show a loading/disabled state on the submit button while the request is in flight
+    On success (201): store the returned token and user data, show a success message
+    On API error (409 duplicate email, 400 validation error): display the error message from the API response
+
+jsx
+Copy
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  // Client-side validation first
+  // Then POST to API
+  const response = await fetch("http://localhost:4000/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, name }),
+  });
+  const data = await response.json();
+  if (response.ok) { /* store token, redirect */ }
+  else { /* show error */ }
+};
+
+Expected output: Submitting with valid data registers the user and stores the token. Submitting with mismatched passwords shows a client-side error. Submitting with a duplicate email shows the API error.
+Task 2: React Login Form with JWT Storage (25 points)
+
+Build a LoginForm component that authenticates users and manages token storage:
+
+    Fields: Email and Password
+    On submit, POST to http://localhost:4000/api/auth/login
+    On success: store the JWT token in localStorage.setItem('token', data.token) and store user data in localStorage.setItem('user', JSON.stringify(data.user))
+    After storing the token, redirect the user to the dashboard (update app state so the dashboard renders)
+    On failure (401): display "Invalid email or password" below the form
+    Show loading state during the request
+    Add a link/button to switch to the registration form: "Don't have an account? Create one"
+
+Also create an AuthContext using React Context that:
+
+    Checks localStorage for an existing token on app load
+    Provides login, register, and logout functions to all components
+    logout removes the token and user from localStorage and resets the user state to null
+
+jsx
+Copy
+
+// AuthContext.jsx
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Validate token by calling GET /api/auth/me
+      // If valid, set user state
+      // If invalid, clear localStorage
+    }
+    setLoading(false);
+  }, []);
+
+  // ... login, register, logout functions
+}
+
+Expected output: Logging in with correct credentials stores the token and shows the dashboard. Logging in with wrong credentials shows the error. Refreshing the page after login keeps the user logged in.
+Task 3: Protected Route and Dashboard (20 points)
+
+Build a ProtectedRoute component and a Dashboard page:
+
+ProtectedRoute:
+
+    Wraps any component that requires authentication
+    Checks if a user is logged in (via AuthContext)
+    Checks if the JWT token is expired by decoding it and comparing the exp field to the current time
+    If not authenticated or token is expired: redirect to the login form and clear localStorage
+    If authenticated: render the wrapped component
+
+jsx
+Copy
+
+function ProtectedRoute({ children }) {
+  const { user } = useAuth();
+  const token = localStorage.getItem('token');
+
+  // Check if token exists and is not expired
+  if (!user || !token) {
+    return <Navigate to login />;
+  }
+
+  // Decode token and check expiry (without verifying signature)
+  // jwt tokens are base64: JSON.parse(atob(token.split('.')[1]))
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  if (payload.exp * 1000 < Date.now()) {
+    // Token expired -- clear storage, redirect
+  }
+
+  return children;
+}
+
+Dashboard:
+
+    Displays the authenticated user's information: name, email, and member since date
+    Shows a "Log Out" button that calls the logout function from AuthContext
+    Fetches fresh user data from GET /api/auth/me on mount (using the stored token in the Authorization header)
+    After logout, the user is redirected back to the login form
+
+Expected output: The dashboard shows user info and is only accessible with a valid token. Clicking logout clears the token and returns to login. Visiting the dashboard URL directly without a token redirects to login.

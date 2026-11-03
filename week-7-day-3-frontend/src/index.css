@@ -1,0 +1,98 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #f3f4f6;
+  color: #1f2937;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+h1 {
+  margin: 0 0 24px;
+  font-size: 1.5rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 15%);
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #9ca3af;
+  border-radius: 6px;
+  font: inherit;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #93a3c4;
+  cursor: not-allowed;
+}
+
+.error {
+  margin: 4px 0 8px;
+  color: #dc2626;
+  font-size: 0.9rem;
+}
+
+.success {
+  color: #15803d;
+}
+
+.switch {
+  margin: 16px 0 0;
+  text-align: center;
+}
+
+.status {
+  text-align: center;
+}
+
+dl {
+  margin: 0 0 24px;
+}
+
+dt {
+  font-weight: 600;
+}
+
+dd {
+  margin: 0 0 12px;
+}
